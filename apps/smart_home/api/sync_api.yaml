@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: SmartHome API
+  version: 1.0.0
+  description: API для управления умным домом
+
+tags:
+  - name: Устройства
+    description: Управление IoT-устройствами
+  - name: Телеметрия
+    description: Работа с данными датчиков
+  - name: Автоматизация
+    description: Управление правилами автоматизации
+
+paths:
+  # ===== Device Service =====
+  /devices/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Устройства]
+      summary: Получить информацию об устройстве
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+
+    patch:
+      tags: [Устройства]
+      summary: Обновить статус устройства
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [online, offline, error]
+      responses:
+        '200':
+          description: Статус обновлен
+
+  /devices/{id}/commands:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags: [Устройства]
+      summary: Отправить команду устройству
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCommand'
+      responses:
+        '202':
+          description: Команда принята
+
+  # ===== Telemetry Service =====
+  /telemetry:
+    get:
+      tags: [ Телеметрия ]
+      summary: Получить телеметрию
+      parameters:
+        - name: device_id
+          in: query
+          schema:
+            type: integer
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryData'
+          description: Получение данных телеметрии
+
+  # ===== Automation Service =====
+  /automation/rules:
+    post:
+      tags: [ Автоматизация ]
+      summary: Создать правило автоматизации
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutomationRule'
+      responses:
+        '201':
+          description: Правило создано
+
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          example: thermostat
+        status:
+          type: string
+          example: online
+        last_seen:
+          type: string
+          format: date-time
+
+    DeviceCommand:
+      type: object
+      properties:
+        command:
+          type: string
+          example: turn_on
+        params:
+          type: object
+          example: { "temperature": 22 }
+
+    TelemetryData:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        value:
+          type: number
+          example: 23.5
+        unit:
+          type: string
+          example: °C
+
+    AutomationRule:
+      type: object
+      properties:
+        condition:
+          type: string
+          example: temperature > 25
+        action:
+          type: string
+          example: turn_on_ac
+        device_id:
+          type: integer
