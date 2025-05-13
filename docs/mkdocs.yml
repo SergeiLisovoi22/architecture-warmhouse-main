@@ -1,0 +1,9 @@
+site_name: Warmhouse Documentation
+theme: readthedocs
+markdown_extensions:
+  - md_in_html
+  - plantuml_markdown:
+      server: "https://www.plantuml.com/plantuml"
+plugins:
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
