@@ -1,0 +1,54 @@
+asyncapi: 2.0.0
+info:
+  title: SmartHome Events
+  version: 1.0.0
+  description: Асинхронные события системы
+
+channels:
+  telemetry.events:
+    subscribe:
+      message:
+        summary: События телеметрии
+        payload:
+          type: object
+          properties:
+            device_id:
+              type: integer
+            value:
+              type: number
+            timestamp:
+              type: string
+              format: date-time
+
+  device.commands:
+    publish:
+      message:
+        summary: Команды устройствам
+        payload:
+          $ref: '#/components/schemas/DeviceCommand'
+
+  notifications:
+    subscribe:
+      message:
+        summary: Уведомления пользователям
+        payload:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [email, sms]
+            message:
+              type: string
+
+components:
+  schemas:
+    DeviceCommand:
+      type: object
+      properties:
+        device_id:
+          type: integer
+        command:
+          type: string
+          example: set_temperature
+        params:
+          type: object
