@@ -1,0 +1,267 @@
+basePath: /
+definitions:
+  main.Sensor:
+    properties:
+      id:
+        example: sensor-001
+        type: string
+      location:
+        example: Living Room
+        type: string
+      name:
+        example: Living Room Sensor
+        type: string
+      status:
+        example: active
+        type: string
+      type:
+        example: temperature
+        type: string
+      unit:
+        example: °C
+        type: string
+      value:
+        example: 22.5
+        type: number
+    type: object
+  main.TemperatureResponse:
+    properties:
+      location:
+        type: string
+      sensorId:
+        type: string
+      temperature:
+        type: number
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для работы с датчиками температуры
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: SmartHome Temperature API
+  version: "1.0"
+paths:
+  /api/v1/sensors:
+    get:
+      consumes:
+      - application/json
+      description: Создание сенсора или получение списка сенсоров
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список сенсоров
+          schema:
+            items:
+              $ref: '#/definitions/main.Sensor'
+            type: array
+        "201":
+          description: Созданный сенсор
+          schema:
+            $ref: '#/definitions/main.Sensor'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "405":
+          description: Метод не разрешен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Работа с сенсорами
+      tags:
+      - Сенсоры
+    post:
+      consumes:
+      - application/json
+      description: Создание сенсора или получение списка сенсоров
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список сенсоров
+          schema:
+            items:
+              $ref: '#/definitions/main.Sensor'
+            type: array
+        "201":
+          description: Созданный сенсор
+          schema:
+            $ref: '#/definitions/main.Sensor'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "405":
+          description: Метод не разрешен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Работа с сенсорами
+      tags:
+      - Сенсоры
+  /api/v1/sensors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление сенсора по ID
+      parameters:
+      - description: ID сенсора
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о сенсоре
+          schema:
+            $ref: '#/definitions/main.Sensor'
+        "204":
+          description: Сенсор удален
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Сенсор не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "405":
+          description: Метод не разрешен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Работа с конкретным сенсором
+      tags:
+      - Сенсоры
+    get:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление сенсора по ID
+      parameters:
+      - description: ID сенсора
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о сенсоре
+          schema:
+            $ref: '#/definitions/main.Sensor'
+        "204":
+          description: Сенсор удален
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Сенсор не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "405":
+          description: Метод не разрешен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Работа с конкретным сенсором
+      tags:
+      - Сенсоры
+    put:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление сенсора по ID
+      parameters:
+      - description: ID сенсора
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о сенсоре
+          schema:
+            $ref: '#/definitions/main.Sensor'
+        "204":
+          description: Сенсор удален
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Сенсор не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "405":
+          description: Метод не разрешен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Работа с конкретным сенсором
+      tags:
+      - Сенсоры
+  /temperature:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает текущую температуру для указанного местоположения или
+        датчика
+      parameters:
+      - description: Название местоположения
+        in: query
+        name: location
+        type: string
+      - description: Идентификатор датчика
+        in: query
+        name: sensorId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.TemperatureResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить текущую температуру
+      tags:
+      - Телеметрия
+swagger: "2.0"

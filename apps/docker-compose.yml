@@ -4,33 +4,81 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: smarthome-postgres
-  ## тут нужно добавить настройки
+    environment:
+      POSTGRES_USER: smarthome
+      POSTGRES_PASSWORD: smarthome123
+      POSTGRES_DB: smarthome
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./smart_home/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - smarthome-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smarthome -d smarthome"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   temperature-api:
-  ## тут нужно добавить приложение
-
-  app:
     build:
-      context: ./smart_home
-      dockerfile: Dockerfile
-    container_name: smarthome-app
+      context: ./smart_home/temperature-api
+    container_name: smarthome-temperature-api
     depends_on:
-      postgres:
-        condition: service_healthy
-      temperature-api:
-        condition: service_started
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/smarthome
-      - TEMPERATURE_API_URL=http://temperature-api:8081
+      - kafka
     ports:
-      - "8080:8080"
-    restart: unless-stopped
+      - "8081:8081"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=smarthome
+      - DB_PASSWORD=smarthome123
+      - DB_NAME=smarthome
+      - KAFKA_BROKERS=kafka:9092
     networks:
       - smarthome-network
 
-volumes:
-  postgres_data:
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    depends_on:
+      - kafka
 
 networks:
   smarthome-network:
     driver: bridge
+
+volumes:
+  postgres_data:
